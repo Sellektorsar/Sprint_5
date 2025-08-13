@@ -1,28 +1,24 @@
-from selenium.webdriver.common.by import By
+from data import urls, test_data
 from locators.auth_page_locators import AuthPageLocators
 from locators.main_page_locators import MainPageLocators
 from locators.ad_page_locators import AdPageLocators
-from utils.helpers import wait_for_element, generate_email
+from locators.modal_locators import ModalLocators
+from utils.helpers import wait_for_element
 
 class TestCreateAd:
 
     def test_create_ad_unauthorized(self, driver):
-        driver.get("https://qa-desk.stand.praktikum-services.ru/")
+        driver.get(urls.BASE_URL)
         driver.find_element(*MainPageLocators.PLACE_AD_BTN).click()
-        modal_title = wait_for_element(driver, (By.XPATH, "//h2[contains(text(),'Чтобы разместить объявление, авторизуйтесь')]"))
+        modal_title = wait_for_element(driver, ModalLocators.AUTH_REQUIRED_TITLE)
         assert modal_title.is_displayed()
 
     def test_create_ad_authorized(self, driver):
-        email = generate_email()
-        password = "Qwerty123!"
-
-        driver.get("https://qa-desk.stand.praktikum-services.ru/")
+        driver.get(urls.BASE_URL)
         driver.find_element(*AuthPageLocators.LOGIN_REGISTER_BTN).click()
-        driver.find_element(*AuthPageLocators.NO_ACCOUNT_BTN).click()
-        driver.find_element(*AuthPageLocators.EMAIL_INPUT).send_keys(email)
-        driver.find_element(*AuthPageLocators.PASSWORD_INPUT).send_keys(password)
-        driver.find_element(*AuthPageLocators.PASSWORD_REPEAT_INPUT).send_keys(password)
-        driver.find_element(*AuthPageLocators.CREATE_ACCOUNT_BTN).click()
+        driver.find_element(*AuthPageLocators.EMAIL_INPUT).send_keys(test_data.TEST_USER_EMAIL)
+        driver.find_element(*AuthPageLocators.PASSWORD_INPUT).send_keys(test_data.TEST_USER_PASSWORD)
+        driver.find_element(*AuthPageLocators.LOGIN_BTN).click()
 
         wait_for_element(driver, MainPageLocators.USER_NAME)
         driver.find_element(*MainPageLocators.PLACE_AD_BTN).click()
